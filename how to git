@@ -1,0 +1,7 @@
+1. add stuff to this folder
+2. navigate to the git folder on the terminal
+- ls
+- cd(change directory) to the folder
+3. git add .
+4. git commit -m "some message..."
+5. git push
