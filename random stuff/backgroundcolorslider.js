@@ -1,4 +1,4 @@
-var ellipseX = 250;
+var ellipseX = 0;
 var ellipseY = 250;
 var grow = false;
 function setup(){
@@ -6,7 +6,7 @@ function setup(){
 }
 function draw(){
 
-  background(200);
+  background(ellipseX,200,200);
   fill(100,100,100);
   noStroke();
   rect(5,225,20,50);
@@ -43,9 +43,9 @@ function stoppage(){
 
 function keyPressed(){
   if(keyCode == 39){
-    ellipseX +=1;
+    ellipseX +=1.92;
   }
   if(keyCode == 37){
-    ellipseX-=1
+    ellipseX-=1.92
   }
 };
