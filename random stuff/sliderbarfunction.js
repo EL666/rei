@@ -16,7 +16,7 @@ function draw(){
   circle();
   textAlign(CENTER,CENTER);
   textSize(30);
-  text(ellipseX-250,250,100);
+  text(Math.floor(ellipseX-250),250,100);
 };
 
 function circle(){
