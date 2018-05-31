@@ -1,5 +1,6 @@
 var noGrav = false;
 var up = 0;
+var counter = 0;
 var particles = [];
 var lavaParticles = [];
 var down = 0;
@@ -24,7 +25,8 @@ var walls1 = [{x:0,y:-300,w:249,h:900},
               ];
 
 var lava = [{x: 800, y: 300, w: 100, h: 20},
-            {x: -500, y:1000, w: 4000, h: 50}];
+            {x: -500, y:1000, w: 4000, h: 50}
+            ];
 
 var player = {x:250,y:250,w:25,h:25,grav:0};
 var chests = [{x:400,y:175,w: 25,h:25,collected: false}]
@@ -43,12 +45,14 @@ class Particle{
 	if(noGrav === false){
   		this.vis === false;
 	} else {
+		fill(255,153,51);
     	rect(this.x,this.y,this.w,this.h,);
 		}
  	}
 
 
   move(){
+
     if(right){
       this.x-=random(1,3);
     }
@@ -56,7 +60,7 @@ class Particle{
       this.x+=random(1,3);
     }
     if(placeFree(this.x,this.y+1,this.w,this.h,walls1)=== false){
-    	this.grav = this.grav + this.speed
+    	this.grav = this.grav + this.speed;
     }else if(placeFree(this.x,this.y + 1, this.w,this.h, walls1) === true) {
         this.grav = 0;
     } 
@@ -70,17 +74,23 @@ class Particle{
   }
 }
 class LavaParticle{
-    constructor(x,y,w,h,dir,height,vis){
+    constructor(x,y,w,h,dir,speed,height,vis){
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.dir = dir;
+    this.speed = speed;
     this.height = height;
     this.vis = vis;
   }
   drawSelf(){
     fill(249,103,34);
+    
+    if(this.y >= 500||this.y<=0){
+      this.vis = false;
+    }
+ 
     if(this.vis === true){
     rect(this.x,this.y,this.w,this.h);
   } else {
@@ -88,16 +98,20 @@ class LavaParticle{
   }
   }
   move(){
-    if(dir == 2){//right
-      this.x+=random(0.001,2)
-    }else if(dir == 1){//left
-      this.x-=random(0.001,2) 
-  }
-    for(var i = this.height; i > -20; i--){
-        player.y -= i;
-            
-   } 
 
+    if(this.dir == 2){//right
+      this.x+=this.speed
+    }else if(this.dir == 1){//left
+      this.x-=this.speed 
+  }
+    for(var i = this.height; i > -50;i--){
+        
+        this.y-=i 
+        
+        break;
+          } 
+   this.height--
+}
 }
 function setup(){
   createCanvas(500,500);
@@ -129,6 +143,12 @@ function draw() {
   drawPlayer();
   text("keyCode", 200,50);
   text(keyCode,250,50);
+  if(counter > 5){
+  pushLavaParticle();
+  counter = 0;
+}
+  doLavaParticle();
+  counter++
 };
 
 function drawPlayer() {
@@ -293,8 +313,8 @@ function touchChest(){
 }
 function resetLevel1(){
 
-  player.x = 250;
-  player.y = 250;
+player.x = 250;
+player.y = 250;
  noGrav = false;
  up = 0;
 particles = [];
@@ -319,7 +339,8 @@ walls1 = [{x:0,y:-300,w:249,h:900},
               ];
 
 lava = [{x: 800, y: 300, w: 100, h: 20},
-            {x: -500, y:1000, w: 4000, h: 50}];
+            {x: -500, y:1000, w: 4000, h: 50}
+            ];
 
  player = {x:250,y:250,w:25,h:25,grav:0};
 chests = [{x:400,y:175,w: 25,h:25,collected: false}]
@@ -379,10 +400,9 @@ function jetpack(){
 
 
 function doParticle(){
-  var filteredParticles = particles.filter((particle) => {return particle.y<random(400,500) && particle.vis === true});
+  var filteredParticles = particles.filter((particle) => {return particle.y<random(400,500) && particle.vis === true&&particle.x>175&&particle.x<375});
   particles = filteredParticles;
   for(var p of particles){
-    fill(230,50,50)
     p.drawSelf();
     p.move();
    
@@ -399,22 +419,26 @@ function doLavaParticle(){
   }   
 }
 function pushLavaParticle(){
-var i = Math.floor(random(0,lava.length))
-  lavaParticles.push(new LavaParticle(lava[i].x+random(0,lava[i].width)-player.x+250,
-                              lava[i].y,
+var i = Math.floor(random(0,lava.length));
+  lavaParticles.push(new LavaParticle(lava[i].x+random(0,lava[i].w)-player.x+250,
+                              lava[i].y-player.y+250,
+                              5,
+                              5,
+                              Math.floor(random(1,3)),
                               random(1,5),
-                              random(1,5),
-                              Math.floor(random(1,2)),
-                              1,
+                              random(5,15),
                               true));
 }
 function pushParticle(){
 
   particles.push(new Particle(random(250-1,250+player.w+1),
                               250 + player.h,
-                              3,
-                              3,
-                              random(0.05,0.3),
-                              random(10,30),
+                              4,
+                              4,
+                              random(0.01,0.5),
+                              random(0.5,1),
                               true));
+}
+function mouseClicked(){
+  pushLavaParticle();
 }
