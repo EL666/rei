@@ -4,6 +4,7 @@ var counter = 0;
 var particles = [];
 var lavaParticles = [];
 var down = 0;
+var size = 0;
 var right = 0;
 var powerLevel = 100;
 var left = 0;
@@ -11,25 +12,17 @@ var spd = 4;
 var gravity = 0;
 var jumpSpeed = 5;
 var jumpHeight = 17;
+var lev1 = true;
+var lev2 = false;
+var effectFinished = true;
+var walls1 = [{}];
+var walls2 = [{}];
+var lava1 = [{}];
+var portals1 = [{}]
 
-var walls1 = [{x:0,y:-300,w:249,h:900},
-              {x:30,y:325,w:140,h:175},
-              {x:0,y:465,w:500,h:35},
-              {x:500,y:250,w:50,h:25},
-              {x:400,y:200,w:75,h:25},
-              {x:600,y:350,w:50,h:25},
-              {x:225,y:276,w:175,h:300},
-              {x: 800, y: 320, w: 100, h: 20},
-              {x:0,y:0,w:1000,h:10},
-              {x:-500,y:1050,w:4000,h:50}
-              ];
+var chests1 = [{
+}]
 
-var lava = [{x: 800, y: 300, w: 100, h: 20},
-            {x: -500, y:1000, w: 4000, h: 50}
-            ];
-
-var player = {x:250,y:250,w:25,h:25,grav:0};
-var chests = [{x:400,y:175,w: 25,h:25,collected: false}]
 class Particle{
   
   constructor(x,y,w,h,speed,grav,vis){
@@ -115,11 +108,12 @@ class LavaParticle{
 }
 function setup(){
   createCanvas(500,500);
+  resetLevel();
 }
 
 function draw() {
   noStroke();
-  drawWalls();
+  drawLevel();
   touchLava();
 
   if(placeFree(player.x,player.y + 1,player.w, player.h , walls1)===false) {
@@ -127,8 +121,9 @@ function draw() {
   }
   movePlayer();
   doParticle();
-  doChest();
-  touchChest();
+  doChest1();
+  touchPortal();
+  touchChest1();
   if(noGrav === true){
     gravity = 0;
     pushParticle();
@@ -160,8 +155,8 @@ function drawPlayer() {
   rect(250,250,player.w,player.h);
 };
 
-function drawWalls() {
-  level1();
+function drawLevel() {
+  level();
 };
 
 function collision(r1, r2) {
@@ -295,38 +290,32 @@ function playerJump(){
 };
 
 function touchLava(){
-  for(var i = 0; i < lava.length; i++){
-  	if(collision(player,lava[i]) === true){
-    	resetLevel1();
+  for(var i = 0; i < lava1.length; i++){
+  	if(collision(player,lava1[i]) === true){
+    	resetLevel();
   	} else {
 
   }
 }
 }
-function touchChest(){
-  for(var i = 0; i < chests.length; i++){
-    if(collision(player,chests[i])=== true){
+function touchChest1(){
+  for(var i = 0; i < chests1.length; i++){
+    if(collision(player,chests1[i])=== true){
       powerLevel = 100;
-      chests[i].collected = true;
+      chests1[i].collected = true;
     }
   }
 }
-function resetLevel1(){
-
-player.x = 250;
-player.y = 250;
- noGrav = false;
- up = 0;
-particles = [];
- down = 0;
-right = 0;
-left = 0;
-spd = 4;
-gravity = 0;
-jumpSpeed = 5;
-jumpHeight = 17;
-
-walls1 = [{x:0,y:-300,w:249,h:900},
+function touchPortal(){
+if(collision(player,portals1[0])===true &&lev1 === true){
+  lev2 = true;
+  lev1 = false;
+  resetLevel();
+}
+}
+function resetLevel(){
+  if(lev1 === true){
+  walls1 = [{x:0,y:-300,w:249,h:900},
               {x:30,y:325,w:140,h:175},
               {x:0,y:465,w:500,h:35},
               {x:500,y:250,w:50,h:25},
@@ -338,14 +327,40 @@ walls1 = [{x:0,y:-300,w:249,h:900},
               {x:-500,y:1050,w:4000,h:50}
               ];
 
-lava = [{x: 800, y: 300, w: 100, h: 20},
+lava1 = [{x: 800, y: 300, w: 100, h: 20},
             {x: -500, y:1000, w: 4000, h: 50}
             ];
+player = {x:250,y:250,w:25,h:25,grav:0};
+portals1 = [{x:0,y:-350,w:10,h:50}]
 
- player = {x:250,y:250,w:25,h:25,grav:0};
-chests = [{x:400,y:175,w: 25,h:25,collected: false}]
+chests1 = [{x:400,y:175,w: 25,h:25,collected:false}]
+} else if(lev2 === true&&effectFinished === true){
+walls1 = [];
+walls1.push({x:225,y:276,w:175,h:300});
+lava1 = [];
+
+player.x = 250;
+player.y = 250;
+
+
+
 }
-function level1(){
+}
+function portalEffect(){
+  if(lev2 === true){
+  rectMode(CENTER);
+
+  effectFinished = false;
+  for(var i = 0; i < 500; i+=0.1)
+   size+=0.1;
+ fill(0,0,0,100-size)
+  rect(250,250,size,size);
+
+  rectMode(CORNER);
+}
+}
+size = 0;
+function level(){
   background(54,52,187)
   fill(94,92,237);
 
@@ -356,37 +371,46 @@ function level1(){
          walls1[i].h);
   }
 
-  for(var j = 0; j < lava.length; j++){
+  for(var j = 0; j < lava1.length; j++){
     fill(249,103,34);
-    rect(lava[j].x - player.x + 250,
-         lava[j].y - player.y + 250,
-         lava[j].w,
-         lava[j].h);
+    rect(lava1[j].x - player.x + 250,
+         lava1[j].y - player.y + 250,
+         lava1[j].w,
+         lava1[j].h);
   }
-  for(var c = 0; c < chests.length; c++){
+  for(var c = 0; c < chests1.length; c++){
     fill(153,109,74);
-    rect(chests[c].x - player.x + 250,
-         chests[c].y - player.y + 250,
-         chests[c].w,
-         chests[c].h);
+    rect(chests1[c].x - player.x + 250,
+         chests1[c].y - player.y + 250,
+         chests1[c].w,
+         chests1[c].h);
     fill(0);
-    rect(chests[c].x-player.x+250,
-         chests[c].y+8-player.y+250,
-         chests[c].w,
+    rect(chests1[c].x-player.x+250,
+         chests1[c].y+8-player.y+250,
+         chests1[c].w,
          3);
     rectMode(CENTER);
     fill(200,200,200);
-    rect(chests[c].x+chests[c].w/2 - player.x + 250,
-         chests[c].y+8-player.y+250,
+    rect(chests1[c].x+chests1
+      [c].w/2 - player.x + 250,
+         chests1[c].y+8-player.y+250,
          5,
          7)
     rectMode(CORNER)
+    fill(255,255,255);
+    rect(portals1[0].x - player.x + 250,
+         portals1[0].y-player.y + 250,
+         portals1[0].w,
+         portals1[0].h);
   }
 }
-function doChest(){
-  var filteredChests = chests.filter((chest) => {return chest.collected === false});
-  chests = filteredChests;
+
+
+function doChest1(){
+  var filteredChests = chests1.filter((chest) => {return chest.collected === false});
+  chests1 = filteredChests;
 }
+
 function jetpack(){ 
 
 	if(powerLevel > 0) {
@@ -419,9 +443,9 @@ function doLavaParticle(){
   }   
 }
 function pushLavaParticle(){
-var i = Math.floor(random(0,lava.length));
-  lavaParticles.push(new LavaParticle(lava[i].x+random(0,lava[i].w)-player.x+250,
-                              lava[i].y-player.y+250,
+var i = Math.floor(random(0,lava1.length));
+  lavaParticles.push(new LavaParticle(lava1[i].x+random(0,lava1[i].w)-player.x+250,
+                              lava1[i].y-player.y+250,
                               5,
                               5,
                               Math.floor(random(1,3)),
@@ -438,7 +462,4 @@ function pushParticle(){
                               random(0.01,0.5),
                               random(0.5,1),
                               true));
-}
-function mouseClicked(){
-  pushLavaParticle();
 }
