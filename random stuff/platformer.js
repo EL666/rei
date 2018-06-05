@@ -124,6 +124,7 @@ function draw() {
   }
   movePlayer();
   doParticle();
+  powerBar();
   doChest1();
   touchPortal();
   touchChest1();
@@ -150,23 +151,32 @@ function draw() {
 }else{
 if(counter2 > 5){
  drawLevel();
-
- fill(0,0,0);
- rect(0,0,effectSize,effectSize);
+ drawPlayer();
+ fill(255);
+ rectMode(CENTER);
+ rect(250,250,effectSize,effectSize);
+ rectMode(CORNER);
  if(effectSwitch === false){
  effectSize+=20;
 }else if(effectSwitch === true){
 effectSize -= 20;
 }
- if(effectSize >= 500&&effectSwitch === false){
+ if(effectSize >= 500&&effectSwitch === false&&lev1 ===true){
   console.log("hi")
   lev2 = true;
   lev1 = false;
   resetLevel();
   effectSwitch = true;
+ }else if(effectSize >= 500&&effectSwitch === false&&lev2 ===true){
+    console.log("hi")
+  lev2 = false;
+  lev1 = true;
+  resetLevel();
+  effectSwitch = true;
  }
  if(effectSize <=0&&effectSwitch===true){
   effectFinished = true;
+  effectSwitch = false;
  }
  counter2 = 0;
 }
@@ -214,16 +224,16 @@ function keyPressed() {
   if(keyCode == 32){
     jetpack();
   }
-  if(keyCode == 38) {
+  if(keyCode == 87||keyCode == 38) {
     up = 1;
   }
-    if(keyCode == 40) {
+    if(keyCode == 83||keyCode == 40) {
     down = 1;
   }
-    if(keyCode == 39) {
+    if(keyCode == 68||keyCode == 39) {
     right = 1;
   }
-    if(keyCode == 37) {
+    if(keyCode == 65|| keyCode == 37) {
     left = 1;
   }
 
@@ -233,16 +243,16 @@ function keyReleased() {
   if(keyCode == 32){
     noGrav = false;
   }
-  if(keyCode == 38) {
+  if(keyCode == 87||keyCode == 38) {
     up = 0;
   }
-    if(keyCode == 40) {
+    if(keyCode == 83||keyCode == 40) {
     down = 0;
   }
-    if(keyCode == 39) {
+    if(keyCode == 68||keyCode == 39) {
     right = 0;
   }
-    if(keyCode == 37) {
+    if(keyCode == 65|| keyCode == 37) {
     left = 0;
   }
 
@@ -335,9 +345,7 @@ function touchChest1(){
   }
 }
 function touchPortal(){
-if(collision(player,portals1[0])===true &&lev1 === true){
-
-  
+if(collision(player,portals1[0])===true){  
 effectFinished = false;
 }
 }
@@ -369,7 +377,9 @@ chests1 = [{x:400,y:175,w: 25,h:25,collected:false}]
 walls1 = [];
 walls1.push({x:225,y:276,w:175,h:300});
 lava1 = [];
-
+chests1 = [];
+portals1 = [];
+portals1.push({x:225,y:225,w:10,h:50});
 player.x = 250;
 player.y = 250;
 
@@ -397,6 +407,7 @@ function level(){
          lava1[j].w,
          lava1[j].h);
   }
+  if(chests1.length > 0){
   for(var c = 0; c < chests1.length; c++){
     fill(153,109,74);
     rect(chests1[c].x - player.x + 250,
@@ -415,6 +426,9 @@ function level(){
          chests1[c].y+8-player.y+250,
          5,
          7)
+  }
+}
+  if(portals1.length > 0){
     rectMode(CORNER)
     fill(255,255,255);
     rect(portals1[0].x - player.x + 250,
@@ -422,6 +436,7 @@ function level(){
          portals1[0].w,
          portals1[0].h);
   }
+
 }
 
 
@@ -483,4 +498,12 @@ function pushParticle(){
                               random(0.01,0.5),
                               random(0.5,1),
                               true));
+}
+function powerBar(){
+stroke(0,255,0);
+fill(0,0,0,0);
+rect(250,240,player.w,3);
+noStroke();
+fill(0,255,0);
+rect(250,240,player.w/100*powerLevel,3)
 }
